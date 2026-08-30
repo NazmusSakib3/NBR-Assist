@@ -36,6 +36,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# prisma agent skills (local only)
+.agents/
+.claude/
+.cursor/
+.devin/
+AGENTS.md
+CLAUDE.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
