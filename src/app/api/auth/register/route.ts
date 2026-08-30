@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { createSessionToken, setSessionCookie } from "@/lib/auth";
+import { createSessionToken, attachSessionCookie } from "@/lib/auth";
 
 const registerSchema = z.object({
   name: z.string().min(2),
@@ -35,9 +35,8 @@ export async function POST(request: Request) {
       name: user.name,
       role: user.role,
     });
-    await setSessionCookie(token);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       user: {
         id: user.id,
         name: user.name,
@@ -45,6 +44,7 @@ export async function POST(request: Request) {
         role: user.role,
       },
     });
+    return attachSessionCookie(response, token);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.flatten() }, { status: 400 });

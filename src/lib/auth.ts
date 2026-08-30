@@ -1,10 +1,18 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import type { Role } from "@prisma/client";
 
-const COOKIE_NAME = "nbr_session";
+export const SESSION_COOKIE_NAME = "nbr_session";
 const EXPIRY = "7d";
+
+export const sessionCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 60 * 60 * 24 * 7,
+};
 
 export type SessionPayload = {
   userId: string;
@@ -34,25 +42,19 @@ export async function verifySessionToken(token: string) {
   return payload as unknown as SessionPayload;
 }
 
-export async function setSessionCookie(token: string) {
-  const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
+export function attachSessionCookie(response: NextResponse, token: string) {
+  response.cookies.set(SESSION_COOKIE_NAME, token, sessionCookieOptions);
+  return response;
 }
 
-export async function clearSessionCookie() {
-  const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+export function clearSessionCookieOn(response: NextResponse) {
+  response.cookies.delete(SESSION_COOKIE_NAME);
+  return response;
 }
 
 export async function getSession() {
   const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 
   try {
@@ -63,7 +65,7 @@ export async function getSession() {
 }
 
 export async function getSessionFromRequest(request: NextRequest) {
-  const token = request.cookies.get(COOKIE_NAME)?.value;
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 
   try {

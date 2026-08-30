@@ -12,3 +12,17 @@ export function formatDate(date: Date | string) {
     year: "numeric",
   }).format(new Date(date));
 }
+
+export function formatAuthError(error: unknown) {
+  if (typeof error === "string") return error;
+  if (!error || typeof error !== "object") return "Request failed";
+
+  const record = error as {
+    formErrors?: string[];
+    fieldErrors?: Record<string, string[]>;
+  };
+
+  const fieldMessages = Object.values(record.fieldErrors ?? {}).flat();
+  const messages = [...(record.formErrors ?? []), ...fieldMessages];
+  return messages.join(". ") || "Request failed";
+}

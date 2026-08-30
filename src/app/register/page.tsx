@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatAuthError } from "@/lib/utils";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,12 +20,13 @@ export default function RegisterPage() {
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name, email, password, businessType }),
     });
 
     if (!response.ok) {
       const data = await response.json();
-      setError(data.error ?? "Registration failed");
+      setError(formatAuthError(data.error) || "Registration failed");
       return;
     }
 

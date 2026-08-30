@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatAuthError } from "@/lib/utils";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,12 +18,13 @@ export default function LoginPage() {
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, password }),
     });
 
     if (!response.ok) {
       const data = await response.json();
-      setError(data.error ?? "Login failed");
+      setError(formatAuthError(data.error) || "Login failed");
       return;
     }
 
@@ -57,6 +59,9 @@ export default function LoginPage() {
           required
         />
         {error ? <p className="text-sm text-red-400">{error}</p> : null}
+        <p className="text-xs text-slate-500">
+          Demo (after seeding): admin@nbrassist.local / Admin123!
+        </p>
         <button
           type="submit"
           className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-slate-950 hover:bg-emerald-400"
