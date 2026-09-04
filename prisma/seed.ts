@@ -57,6 +57,50 @@ Operating without a valid trade license may result in fines and closure orders.
 Trade license applications require proof of address, NID of owner, rent agreement, and fire safety clearance where applicable.
 Businesses should align trade license category with actual business activities for VAT and tax compliance.`,
   },
+  {
+    title: "VAT Registration and BIN",
+    category: "VAT" as const,
+    source: "NBR VAT and SD Act",
+    content: `Businesses whose annual turnover exceeds the VAT registration threshold must register with NBR and obtain a Business Identification Number (BIN).
+BIN is required for issuing Mushak invoices, claiming input tax credit, and filing Mushak-9.1 returns.
+Online VAT registration is available through the NBR VAT Online portal.
+After registration, taxpayers must display BIN on invoices, signboards, and official correspondence.
+Failure to register when required can lead to assessment, penalties, and denial of input tax credit.
+Voluntary registration is allowed for businesses below the threshold who want to claim input tax or deal with VAT-registered buyers.`,
+  },
+  {
+    title: "Mushak Invoices and Record Keeping",
+    category: "VAT" as const,
+    source: "NBR VAT Rules",
+    content: `VAT-registered suppliers must issue Mushak invoices for taxable supplies, showing BIN, buyer details, taxable value, and VAT amount.
+Credit notes and debit notes must be issued when the value of supply changes after the original invoice.
+Purchase invoices from suppliers are required to claim input tax credit.
+Records of sales, purchases, stock, and Mushak documents must be kept for at least six years.
+Electronic record keeping is acceptable if records can be produced on demand during NBR audit.
+Missing or incomplete Mushak documentation is a common reason for VAT assessment disputes.`,
+  },
+  {
+    title: "Withholding Tax (TDS) Basics",
+    category: "INCOME_TAX" as const,
+    source: "Income Tax Ordinance — Withholding",
+    content: `Certain payments in Bangladesh are subject to tax deducted at source (TDS), including supply of goods, services, rent, and contractor payments.
+The withholding agent must deduct tax at the prescribed rate and deposit it to the government treasury within the required timeline.
+A withholding certificate should be issued to the payee so they can claim credit in their income tax return.
+Businesses that fail to withhold or deposit tax may be treated as assessee-in-default and face penalties.
+Freelancers and vendors should check whether clients deducted TDS and retain certificates for annual return filing.
+TDS rates and thresholds change by finance act, so businesses should verify the current NBR circular before payment.`,
+  },
+  {
+    title: "Customs Import Compliance for SMEs",
+    category: "CUSTOMS" as const,
+    source: "NBR Customs / ASYCUDA",
+    content: `Importers must have a valid BIN/TIN and complete customs declaration through the ASYCUDA World system.
+Import consignments require commercial invoice, packing list, bill of lading or airway bill, and letter of credit or payment proof where applicable.
+Customs duty, VAT on import, and other levies are assessed based on HS code classification and declared value.
+Misclassification or undervaluation can result in penalties, seizure, or reassessment.
+SMEs importing regularly should keep HS code records and consult a licensed customs agent for complex goods.
+After release, import documents should be retained for VAT input tax claims and income tax audits.`,
+  },
 ];
 
 async function main() {

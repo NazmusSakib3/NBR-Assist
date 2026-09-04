@@ -40,11 +40,18 @@ export function ChatPanel() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ message: question, sessionId }),
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      if (!response.ok) {
+        throw new Error(
+          typeof data.error === "string"
+            ? data.error
+            : "Failed to generate response",
+        );
+      }
 
       setSessionId(data.sessionId);
       setMessages((prev) => [
@@ -55,13 +62,15 @@ export function ChatPanel() {
           citations: data.citations,
         },
       ]);
-    } catch {
+    } catch (error) {
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           content:
-            "Sorry, I couldn't process that. Make sure GEMINI_API_KEY is configured and regulation documents are seeded.",
+            error instanceof Error
+              ? error.message
+              : "Sorry, I couldn't process that. Please try again.",
         },
       ]);
     } finally {

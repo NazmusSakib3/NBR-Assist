@@ -14,7 +14,8 @@ function getClient() {
 }
 
 export function getChatModel() {
-  const model = process.env.GEMINI_CHAT_MODEL ?? "gemini-3.5-flash-lite";
+  const model =
+    process.env.GEMINI_CHAT_MODEL ?? "gemini-2.5-flash-lite";
   return getClient().getGenerativeModel({ model });
 }
 
@@ -41,17 +42,22 @@ export async function generateChatResponse(
   messages: { role: "user" | "model"; content: string }[],
 ) {
   const model = getChatModel();
-  const history = messages.slice(0, -1).map((message) => ({
+
+  // Prefer generateContent over startChat — more reliable with systemInstruction
+  // and avoids empty-history edge cases on some Gemini models.
+  const contents = messages.map((message) => ({
     role: message.role,
     parts: [{ text: message.content }],
   }));
 
-  const chat = model.startChat({
-    history,
+  const result = await model.generateContent({
+    contents,
     systemInstruction: systemPrompt,
   });
 
-  const lastMessage = messages[messages.length - 1];
-  const result = await chat.sendMessage(lastMessage.content);
-  return result.response.text();
+  const text = result.response.text();
+  if (!text?.trim()) {
+    throw new Error("Empty response from Gemini");
+  }
+  return text;
 }

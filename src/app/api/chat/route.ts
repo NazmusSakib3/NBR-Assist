@@ -11,12 +11,17 @@ const chatSchema = z.object({
   sessionId: z.string().optional(),
 });
 
-const SYSTEM_PROMPT = `You are NBR Assist, an AI compliance copilot for Bangladeshi businesses.
-Answer questions about VAT, TIN, income tax, trade licenses, and NBR compliance using ONLY the provided context.
-If the context does not contain enough information, say so clearly and suggest consulting a qualified tax professional.
-Always mention relevant deadlines when applicable.
-Keep answers practical, concise, and specific to Bangladesh.
-Cite sources as [Source 1], [Source 2], etc. when using retrieved context.`;
+const SYSTEM_PROMPT = `You are NBR Assist, an AI compliance copilot for Bangladeshi SMEs.
+
+Rules:
+1. Use ONLY the provided regulation context for legal/compliance claims.
+2. If context is missing or weak, say what is missing and recommend a qualified tax professional or official NBR guidance.
+3. Prefer concrete Bangladesh actions: forms (e.g. Mushak-9.1), deadlines, documents, portals.
+4. When a deadline exists in context, state it clearly near the top of the answer.
+5. Cite sources inline as [Source 1], [Source 2], etc.
+6. Keep answers short: 4–8 sentences or a tight bullet list.
+7. Do not invent rates, thresholds, or circular numbers that are not in the context.
+8. If the user writes in Bangla (Bengali), reply in Bangla; otherwise reply in clear English.`;
 
 export async function POST(request: NextRequest) {
   const session = await getSessionFromRequest(request);
@@ -90,9 +95,21 @@ export async function POST(request: NextRequest) {
       citations,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Chat error:", error);
+    const message =
+      error instanceof Error ? error.message : "Failed to generate response";
+    const isConfig =
+      message.includes("GEMINI_API_KEY") ||
+      message.includes("API key") ||
+      message.includes("404") ||
+      message.includes("not found");
     return NextResponse.json(
-      { error: "Failed to generate response. Check GEMINI_API_KEY." },
+      {
+        error: isConfig
+          ? "AI is not configured correctly. Check GEMINI_API_KEY and GEMINI_CHAT_MODEL on Vercel."
+          : "Failed to generate response. Please try again in a moment.",
+        detail: process.env.NODE_ENV === "development" ? message : undefined,
+      },
       { status: 500 },
     );
   }
