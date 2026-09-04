@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { getSessionFromRequest } from "@/lib/auth";
 import { buildRagPrompt, retrieveRelevantChunks } from "@/lib/ai/rag";
 import { generateChatResponse } from "@/lib/ai/gemini";
+import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const chatSchema = z.object({
-  message: z.string().min(1),
+  message: z.string().min(1).max(2000),
   sessionId: z.string().optional(),
 });
 
@@ -22,6 +23,10 @@ export async function POST(request: NextRequest) {
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const ip = clientIp(request);
+  const limited = rateLimit(`chat:${session.userId}:${ip}`, 12, 60_000);
+  if (!limited.ok) return rateLimitResponse(limited.resetAt);
 
   try {
     const body = chatSchema.parse(await request.json());

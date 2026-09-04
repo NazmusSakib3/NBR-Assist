@@ -40,12 +40,13 @@ Built as a portfolio project demonstrating **Next.js 16, TypeScript, PostgreSQL,
 ## Try the live demo
 
 1. Open [https://nbr-assist.vercel.app](https://nbr-assist.vercel.app)
-2. Sign in with a demo account:
+2. Sign in with the **public demo** account:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | `admin@nbrassist.local` | `Admin123!` |
-| Business Owner | `owner@nbrassist.local` | `Admin123!` |
+| Business Owner (public) | `owner@nbrassist.local` | `Demo@NBR2026!` |
+
+Admin credentials are private (set via `DEMO_ADMIN_PASSWORD` when seeding). See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Quick Start (local)
 

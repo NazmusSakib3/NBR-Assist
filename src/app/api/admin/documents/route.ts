@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSessionFromRequest, requireRole } from "@/lib/auth";
 import { ingestDocument } from "@/lib/ai/rag";
+import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import type { ComplianceType } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
@@ -31,6 +32,10 @@ export async function POST(request: NextRequest) {
   if (!session || !requireRole(session, ["ADMIN"])) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
+  const ip = clientIp(request);
+  const limited = rateLimit(`admin-docs:${session.userId}:${ip}`, 5, 60_000);
+  if (!limited.ok) return rateLimitResponse(limited.resetAt);
 
   try {
     const body = createSchema.parse(await request.json());

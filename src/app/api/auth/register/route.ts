@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSessionToken, attachSessionCookie } from "@/lib/auth";
+import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const registerSchema = z.object({
   name: z.string().min(2),
@@ -12,6 +13,10 @@ const registerSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const ip = clientIp(request);
+  const limited = rateLimit(`register:${ip}`, 5, 60 * 60_000);
+  if (!limited.ok) return rateLimitResponse(limited.resetAt);
+
   try {
     const body = registerSchema.parse(await request.json());
     const existing = await prisma.user.findUnique({ where: { email: body.email } });

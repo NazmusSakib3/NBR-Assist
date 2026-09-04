@@ -11,8 +11,8 @@
 
 ```bash
 git add .
-git commit -m "Add NBR Assist MVP"
-git push -u origin master
+git commit -m "Deploy NBR Assist"
+git push -u origin main
 ```
 
 ## 3. Deploy on Vercel
@@ -32,6 +32,7 @@ npx vercel env add GEMINI_API_KEY production
 npx vercel env add GEMINI_CHAT_MODEL production
 npx vercel env add GEMINI_EMBED_MODEL production
 npx vercel env add NEXT_PUBLIC_APP_URL production
+npx vercel env add DEMO_ADMIN_PASSWORD production
 npx vercel --prod
 ```
 
@@ -40,31 +41,46 @@ npx vercel --prod
 | Variable | Example | Notes |
 |----------|---------|-------|
 | `DATABASE_URL` | `postgresql://...@neon.tech/neondb?sslmode=require` | From Neon dashboard |
-| `JWT_SECRET` | random 32+ char string | `openssl rand -base64 32` |
+| `JWT_SECRET` | random 32+ char string | `openssl rand -base64 32` — rotate if ever leaked |
 | `GEMINI_API_KEY` | `AIza...` | From Google AI Studio |
 | `GEMINI_CHAT_MODEL` | `gemini-3.5-flash-lite` | |
 | `GEMINI_EMBED_MODEL` | `gemini-embedding-001` | |
 | `NEXT_PUBLIC_APP_URL` | `https://nbr-assist.vercel.app` | Your Vercel URL |
+| `DEMO_ADMIN_PASSWORD` | strong private password | Admin seed account only |
+| `DEMO_OWNER_PASSWORD` | `Demo@NBR2026!` | Optional; public demo default |
 
-## 5. Seed production database (one time)
+## 5. Seed production database
 
-After first deploy, run locally pointing at Neon:
+After deploy (and whenever you change demo passwords), run locally with Neon `DATABASE_URL`:
 
 ```bash
-# Temporarily set DATABASE_URL to your Neon connection string in .env
 npm run db:seed
 ```
-
-Or use Neon SQL editor to verify tables were created by `vercel-build` (`prisma db push`).
 
 ## 6. Verify
 
 - Visit your Vercel URL
-- Login: `admin@nbrassist.local` / `Admin123!`
-- Test AI chat, calendar, checklists
+- Public demo: `owner@nbrassist.local` / `Demo@NBR2026!`
+- Admin: `admin@nbrassist.local` + your private `DEMO_ADMIN_PASSWORD`
+
+## Production hardening (long-term public)
+
+Already in the app:
+
+- Rate limits: login (10/min), register (5/hour), chat (12/min), admin ingest (5/min)
+- Chat messages capped at 2000 characters
+- Public demo uses owner role only; admin password is not advertised on the login page
+- Cookies use `secure: true` in production
+
+You should also:
+
+1. **Rotate `JWT_SECRET`** in Vercel if it was ever shared in chat/email, then redeploy (forces re-login)
+2. Set a strong unique **`DEMO_ADMIN_PASSWORD`** in Vercel + local `.env`, then re-run `npm run db:seed`
+3. Watch Gemini usage in Google AI Studio (rate limits protect spend)
+4. Optionally add a custom domain in Vercel → Domains
+5. Use Vercel → Logs / Observability for errors (Sentry optional later)
 
 ## Notes
 
 - `vercel-build` runs `prisma db push` to sync schema on each deploy
-- Cookies use `secure: true` in production automatically
 - Keep `.env` out of git — set secrets only in Vercel dashboard

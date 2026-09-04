@@ -4,6 +4,14 @@ import { ingestDocument } from "../src/lib/ai/rag";
 
 const prisma = new PrismaClient();
 
+/** Public demo owner password — safe to share for portfolio visitors. */
+const DEMO_OWNER_PASSWORD =
+  process.env.DEMO_OWNER_PASSWORD ?? "Demo@NBR2026!";
+
+/** Admin password — keep private; set DEMO_ADMIN_PASSWORD in production. */
+const DEMO_ADMIN_PASSWORD =
+  process.env.DEMO_ADMIN_PASSWORD ?? "ChangeMe-Admin-NBR!";
+
 const REGULATIONS = [
   {
     title: "VAT Return Filing — Mushak-9.1",
@@ -52,15 +60,16 @@ Businesses should align trade license category with actual business activities f
 ];
 
 async function main() {
-  const passwordHash = await bcrypt.hash("Admin123!", 12);
+  const ownerHash = await bcrypt.hash(DEMO_OWNER_PASSWORD, 12);
+  const adminHash = await bcrypt.hash(DEMO_ADMIN_PASSWORD, 12);
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@nbrassist.local" },
-    update: {},
+    update: { passwordHash: adminHash, role: "ADMIN" },
     create: {
       email: "admin@nbrassist.local",
       name: "NBR Admin",
-      passwordHash,
+      passwordHash: adminHash,
       role: "ADMIN",
       businessType: "retail",
     },
@@ -68,11 +77,11 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: "owner@nbrassist.local" },
-    update: {},
+    update: { passwordHash: ownerHash, role: "BUSINESS_OWNER" },
     create: {
       email: "owner@nbrassist.local",
       name: "Demo Business Owner",
-      passwordHash,
+      passwordHash: ownerHash,
       role: "BUSINESS_OWNER",
       businessType: "retail",
     },
@@ -106,8 +115,10 @@ async function main() {
   }
 
   console.log("Seed complete.");
-  console.log("Admin login: admin@nbrassist.local / Admin123!");
-  console.log("Demo login: owner@nbrassist.local / Admin123!");
+  console.log(`Demo owner: owner@nbrassist.local / ${DEMO_OWNER_PASSWORD}`);
+  console.log(
+    "Admin: admin@nbrassist.local (password from DEMO_ADMIN_PASSWORD — keep private)",
+  );
   console.log(`Admin user id: ${admin.id}`);
 }
 

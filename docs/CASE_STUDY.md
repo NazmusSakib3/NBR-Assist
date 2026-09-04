@@ -46,8 +46,8 @@ NBR Assist is an AI compliance copilot that:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | `admin@nbrassist.local` | `Admin123!` |
-| Owner | `owner@nbrassist.local` | `Admin123!` |
+| Owner (public) | `owner@nbrassist.local` | `Demo@NBR2026!` |
+| Admin | `admin@nbrassist.local` | Private (`DEMO_ADMIN_PASSWORD`) |
 
 ## Takeaways
 

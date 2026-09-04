@@ -60,7 +60,7 @@ export default function LoginPage() {
         />
         {error ? <p className="text-sm text-red-400">{error}</p> : null}
         <p className="text-xs text-slate-500">
-          Demo (after seeding): admin@nbrassist.local / Admin123!
+          Public demo: owner@nbrassist.local / Demo@NBR2026!
         </p>
         <button
           type="submit"
