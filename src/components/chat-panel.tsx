@@ -32,7 +32,7 @@ export function ChatPanel() {
     {
       role: "assistant",
       content:
-        "Hi! I'm NBR Assist. Ask in English or Bangla about VAT, TIN, income tax, or trade license compliance in Bangladesh.\n\nনমস্কার! ভ্যাট, টিআইএন, আয়কর বা ট্রেড লাইসেন্স সম্পর্কে ইংরেজি বা বাংলায় জিজ্ঞাসা করতে পারেন।",
+        "Hello! I'm NBR Assist. Ask in English or Bangla about VAT, TIN, income tax, or trade license compliance in Bangladesh.\n\nহ্যালো! ভ্যাট, টিআইএন, আয়কর বা ট্রেড লাইসেন্স সম্পর্কে ইংরেজি বা বাংলায় জিজ্ঞাসা করতে পারেন।",
     },
   ]);
   const [input, setInput] = useState("");
