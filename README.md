@@ -20,11 +20,12 @@ Built as a portfolio project demonstrating **Next.js 16, TypeScript, PostgreSQL,
 
 ## Features
 
-- **AI Compliance Chat** — RAG pipeline with regulation citations
+- **AI Compliance Chat** — RAG pipeline with regulation citations (English + Bangla)
 - **Compliance Calendar** — VAT, income tax, TIN, and trade license deadlines
-- **Business Checklists** — Retail, restaurant, freelancer, export templates
+- **Business Checklists** — Retail, restaurant, freelancer, export templates + PDF export
 - **Admin Panel** — Upload and ingest NBR regulation documents
 - **Auth & RBAC** — JWT sessions with Admin / Business Owner roles
+- **Production hardening** — Rate limits, private admin creds, message size caps
 
 ## Tech Stack
 

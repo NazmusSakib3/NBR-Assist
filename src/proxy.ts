@@ -4,7 +4,7 @@ import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 
 const publicPaths = ["/", "/login", "/register"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublic = publicPaths.some(
     (path) => pathname === path || pathname.startsWith("/api/auth"),

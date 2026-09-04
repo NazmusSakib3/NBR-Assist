@@ -15,23 +15,36 @@ type Message = {
   citations?: Citation[];
 };
 
+const SUGGESTIONS_EN = [
+  "When is my VAT return due?",
+  "Do I need a TIN for freelancing?",
+  "What documents are needed for trade license?",
+];
+
+const SUGGESTIONS_BN = [
+  "ভ্যাট রিটার্ন কবে জমা দিতে হয়?",
+  "ফ্রিল্যান্সিংয়ের জন্য TIN লাগবে কি?",
+  "ট্রেড লাইসেন্সের জন্য কী কী কাগজ লাগে?",
+];
+
 export function ChatPanel() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content:
-        "Hi! I'm NBR Assist. Ask me about VAT returns, TIN registration, income tax deadlines, or trade license compliance in Bangladesh.",
+        "Hi! I'm NBR Assist. Ask in English or Bangla about VAT, TIN, income tax, or trade license compliance in Bangladesh.\n\nনমস্কার! ভ্যাট, টিআইএন, আয়কর বা ট্রেড লাইসেন্স সম্পর্কে ইংরেজি বা বাংলায় জিজ্ঞাসা করতে পারেন।",
     },
   ]);
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState<string>();
   const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState<"en" | "bn">("en");
 
-  async function sendMessage(event: React.FormEvent) {
-    event.preventDefault();
-    if (!input.trim() || loading) return;
+  async function sendMessage(event?: React.FormEvent, preset?: string) {
+    event?.preventDefault();
+    const question = (preset ?? input).trim();
+    if (!question || loading) return;
 
-    const question = input.trim();
     setInput("");
     setMessages((prev) => [...prev, { role: "user", content: question }]);
     setLoading(true);
@@ -78,13 +91,39 @@ export function ChatPanel() {
     }
   }
 
+  const suggestions = lang === "bn" ? SUGGESTIONS_BN : SUGGESTIONS_EN;
+
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col rounded-2xl border border-slate-800 bg-slate-900/50">
       <div className="border-b border-slate-800 px-6 py-4">
-        <h1 className="text-xl font-semibold">AI Compliance Chat</h1>
-        <p className="text-sm text-slate-400">
-          RAG-powered answers grounded in Bangladesh tax regulations
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold">AI Compliance Chat</h1>
+            <p className="text-sm text-slate-400">
+              RAG-powered answers in English or Bangla
+            </p>
+          </div>
+          <div className="inline-flex rounded-xl border border-slate-700 p-1 text-xs">
+            <button
+              type="button"
+              onClick={() => setLang("en")}
+              className={`rounded-lg px-3 py-1.5 ${
+                lang === "en" ? "bg-emerald-500 text-slate-950" : "text-slate-300"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => setLang("bn")}
+              className={`rounded-lg px-3 py-1.5 ${
+                lang === "bn" ? "bg-emerald-500 text-slate-950" : "text-slate-300"
+              }`}
+            >
+              বাংলা
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
@@ -119,24 +158,43 @@ export function ChatPanel() {
         ) : null}
       </div>
 
-      <form onSubmit={sendMessage} className="border-t border-slate-800 p-4">
-        <div className="flex gap-3">
-          <input
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder="Ask: When is my VAT return due?"
-            className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none ring-emerald-500 focus:ring-2"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-60"
-          >
-            <Send className="h-4 w-4" />
-            Send
-          </button>
+      <div className="space-y-3 border-t border-slate-800 p-4">
+        <div className="flex flex-wrap gap-2">
+          {suggestions.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              disabled={loading}
+              onClick={() => sendMessage(undefined, suggestion)}
+              className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 disabled:opacity-50"
+            >
+              {suggestion}
+            </button>
+          ))}
         </div>
-      </form>
+        <form onSubmit={sendMessage}>
+          <div className="flex gap-3">
+            <input
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder={
+                lang === "bn"
+                  ? "জিজ্ঞাসা করুন: ভ্যাট রিটার্ন কবে জমা দিতে হয়?"
+                  : "Ask: When is my VAT return due?"
+              }
+              className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none ring-emerald-500 focus:ring-2"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-60"
+            >
+              <Send className="h-4 w-4" />
+              Send
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

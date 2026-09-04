@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
+import { downloadChecklistPdf } from "@/lib/compliance/export-pdf";
 
 type ChecklistItem = {
   id: string;
@@ -23,7 +25,7 @@ export function ChecklistsPanel() {
   const [loading, setLoading] = useState(true);
 
   async function loadChecklists() {
-    const response = await fetch("/api/checklists");
+    const response = await fetch("/api/checklists", { credentials: "include" });
     const data = await response.json();
     setChecklists(data.checklists ?? []);
     setLoading(false);
@@ -37,6 +39,7 @@ export function ChecklistsPanel() {
     const response = await fetch("/api/checklists", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ businessType }),
     });
     const data = await response.json();
@@ -52,6 +55,7 @@ export function ChecklistsPanel() {
     await fetch("/api/checklists", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ id: checklist.id, items }),
     });
     setChecklists((prev) =>
@@ -64,7 +68,7 @@ export function ChecklistsPanel() {
       <div>
         <h1 className="text-2xl font-semibold">Compliance Checklists</h1>
         <p className="text-sm text-slate-400">
-          Generate a tailored checklist for your business type
+          Generate a tailored checklist for your business type and export as PDF
         </p>
       </div>
 
@@ -100,11 +104,21 @@ export function ChecklistsPanel() {
               key={checklist.id}
               className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5"
             >
-              <div className="mb-4">
-                <h2 className="font-medium">{checklist.title}</h2>
-                <p className="text-xs uppercase tracking-wide text-slate-400">
-                  {checklist.businessType}
-                </p>
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-medium">{checklist.title}</h2>
+                  <p className="text-xs uppercase tracking-wide text-slate-400">
+                    {checklist.businessType}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => downloadChecklistPdf(checklist)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Export PDF
+                </button>
               </div>
               <div className="space-y-2">
                 {checklist.items.map((item) => (
